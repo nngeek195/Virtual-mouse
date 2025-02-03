@@ -6,9 +6,12 @@ This is a first stage project functionl python backend code for a virtual mouse.
 
 1. Clone the repo
 2. Install the requiement.txt
-  ```bash
+    ```bash
    pip install -r /path/to/requirements.txt
 
+
+4. Enjoy
+ 
 
 
 

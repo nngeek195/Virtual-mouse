@@ -10,7 +10,7 @@ This is a first stage project functionl python backend code for a virtual mouse.
    pip install -r /path/to/requirements.txt
 
 
-4. Enjoy
+3. Enjoy
  
 
 

@@ -9,7 +9,7 @@ This is a first stage project functionl python backend code for a virtual mouse.
   ```bash
    pip install -r /path/to/requirements.txt
 
-3. Start your developments
+
 
 
 

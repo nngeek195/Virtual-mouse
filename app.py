@@ -3,6 +3,9 @@ import mediapipe as mp
 import pyautogui
 import math
 import time
+import threading
+import queue
+import speech_recognition as sr
 
 # Initialize MediaPipe Hands
 mp_hands = mp.solutions.hands
@@ -21,6 +24,30 @@ CLICK_THRESHOLD = 30  # Adjust this value based on your needs
 DEBOUNCE_TIME = 0.2
 
 last_click_time = 0
+
+# Voice recognition setup
+recognizer = sr.Recognizer()
+voice_queue = queue.Queue()
+
+def listen_for_voice_commands():
+    """Listen for voice commands in a background thread."""
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source, duration=1)
+        while True:
+            try:
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=3)
+                command = recognizer.recognize_google(audio).lower()
+                print(f"Voice command: {command}")
+                voice_queue.put(command)
+            except sr.WaitTimeoutError:
+                pass
+            except sr.UnknownValueError:
+                pass
+            except sr.RequestError as e:
+                print(f"Speech recognition service error: {e}")
+
+voice_thread = threading.Thread(target=listen_for_voice_commands, daemon=True)
+voice_thread.start()
 
 # Variables to store the previous mouse position for smoothing
 prev_mouse_x, prev_mouse_y = pyautogui.position()
@@ -92,6 +119,19 @@ while cap.isOpened():
                 last_click_time = current_time
 
     cv2.imshow('Hand Tracking', frame)
+
+    # Handle voice commands (thread-safe via queue)
+    try:
+        voice_command = voice_queue.get_nowait()
+        if "scroll up" in voice_command:
+            pyautogui.scroll(5)
+        elif "scroll down" in voice_command:
+            pyautogui.scroll(-5)
+        elif "quit" in voice_command or "exit" in voice_command:
+            break
+    except queue.Empty:
+        pass
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
